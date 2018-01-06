@@ -5,14 +5,12 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net"
 	"netstat"
 	"os"
 	"packet"
 	"reflect"
-	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -348,8 +346,6 @@ func (c *Client) Working() {
 	go c.WriteFromChan()
 	go c.HeartBeat()
 	go c.statstics()
-
-	c.EchoReqSend()
 }
 
 func (c *Client) PutPktToChan(pkt *packet.PktBuf) {
@@ -603,39 +599,5 @@ func fileExist(filename string) bool {
 }
 
 func (c *Client) statstics() {
-	idFileName := "/dev/shm/product_id"
-	var txs, txCurrent, rxs, rxCurrent uint64
-	vc, ok := c.cio.(*vnetConn)
-	if !ok {
-		return
-	}
-	stats := &c.stats
-	stats.AccessRemoteHost = vc.conn.RemoteAddr().String()
-	key := vc.String()
-	VnetStats[key] = stats
 
-	if !fileExist(idFileName) {
-		idFileName = "/dev/shm/node_id"
-	}
-	buf, err := ioutil.ReadFile(idFileName)
-	if err != nil {
-		log.Println(err)
-	} else {
-		idstr := strings.TrimSpace(string(buf))
-		stats.NodeId = strings.Trim(idstr, "\n")
-	}
-
-	for {
-		time.Sleep(time.Second)
-		if c.isClosed {
-			delete(VnetStats, key)
-			return
-		}
-		txCurrent = atomic.LoadUint64(&c.tx_bytes)
-		stats.SendSpd = txCurrent - txs
-		txs = txCurrent
-		rxCurrent = atomic.LoadUint64(&c.rx_bytes)
-		stats.ReceiveSpd = rxCurrent - rxs
-		rxs = rxCurrent
-	}
 }

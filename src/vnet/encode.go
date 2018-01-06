@@ -22,8 +22,6 @@ const (
 	FdbIdsMsg     = byte(0x04)
 	MultiLinkData = byte(0x05)
 	CryptoData    = byte(0x06)
-	EchoReq       = byte(0x07)
-	EchoRpl       = byte(0x08)
 )
 
 type PktHeader struct {
@@ -34,7 +32,6 @@ type PktHeader struct {
 }
 
 func init() {
-	//fmt.Println("PktHeaderSize:", PktHeaderSize)
 	pktHandlersReg()
 }
 
@@ -43,14 +40,11 @@ var pktHandles map[byte]func(c *Client, cr io.Reader, pb *packet.PktBuf, ph *Pkt
 func pktHandlersReg() {
 	pktHandles = make(map[byte]func(c *Client, cr io.Reader, pb *packet.PktBuf, ph *PktHeader) (n int, err error), 5)
 	pktHandles[UserData] = UserDataPktHandle
-	//pktHandles[MultiLinkData] = MultiLinkDataPktHandle
 
 	pktHandles[HearbeatReq] = HearbeatPktHandle
 	pktHandles[HearbeatRpl] = HearbeatPktHandle
 
 	pktHandles[FdbIdsMsg] = FdbIdsMsgPktHandle
-	pktHandles[EchoReq] = EchoReqPktHandle
-	pktHandles[EchoRpl] = EchoRplPktHandle
 }
 
 func assembleUserPkt(data []byte) ([]byte, error) {
@@ -79,14 +73,6 @@ func assembleHbRplHead(headBuf []byte, dataLen int) error {
 
 func assembleFdbIdsHead(headBuf []byte, dataLen int) error {
 	return assemblePktHead(FdbIdsMsg, headBuf, dataLen, 0)
-}
-
-func assembleEchoReqHead(headBuf []byte, dataLen int) error {
-	return assemblePktHead(EchoReq, headBuf, dataLen, 0)
-}
-
-func assembleEchoRplHead(headBuf []byte, dataLen int) error {
-	return assemblePktHead(EchoRpl, headBuf, dataLen, 0)
 }
 
 func assemblePkt(t byte, data []byte) ([]byte, error) {

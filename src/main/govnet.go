@@ -161,7 +161,6 @@ func main() {
 	HeartbeatConf := vnetConf.HeartbeatConf
 	vnet.SetHeartbeat(HeartbeatConf.HeartbeatIdle, HeartbeatConf.HeartbeatCnt, HeartbeatConf.HeartbeatIntv)
 	netstat.Enable(vnetConf.NetStatEnable)
-	vnet.SetEchoString(vnetConf.Ve)
 
 	if vnetConf.PprofEnable {
 		go func() {
