@@ -1,0 +1,38 @@
+package packet
+
+import (
+	"bytes"
+	"net"
+)
+
+var (
+	DynRouteProto []byte = []byte{0x68, 0x68}
+)
+
+func CreateRoutePkt(dmac, smac net.HardwareAddr, payload []byte) []byte {
+	//d := packet(dmac)
+	// ether := &Ether{
+	// 	DstMac: MAC(dmac),
+	// 	SrcMac: MAC(smac),
+	// 	Proto:  DynRouteProto,
+	// }
+	//binary.Write(pkt, binary.BigEndian, ether)//可以是结构体，内部会用反射来得到相应的内容
+	//aa := unsafe.Pointer(&BroadcastAddr)
+	//fmt.Println(aa)
+	//pkt := make([]byte, EtherSize+len(payload))
+	pkt := bytes.NewBuffer(make([]byte, 0, EtherSize+len(payload)))
+	if dmac != nil {
+		pkt.Write([]byte(dmac))
+	} else {
+		// l := unsafe.Sizeof(BroadcastAddr)
+		// pb := (*[64]byte)(unsafe.Pointer(&BroadcastAddr[0]))
+		// pkt.Write(pb[:l])
+		pkt.Write([]byte{0xff, 0xff, 0xff, 0xff, 0xff, 0xff})
+	}
+	//pkt.ReadByte()
+	//binary.Write(pkt, binary.BigEndian, headlen) //也会调用到 pkt.Write(),所有会继续偏移
+	pkt.Write([]byte(smac))
+	pkt.Write(DynRouteProto)
+	pkt.Write(payload)
+	return pkt.Bytes()
+}

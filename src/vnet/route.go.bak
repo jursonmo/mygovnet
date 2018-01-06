@@ -1,0 +1,70 @@
+package vnet
+
+import (
+	"errors"
+	"fmt"
+	"log"
+	"net"
+	"packet"
+	"strings"
+)
+
+func getIpv4AddrMask(iface string) (addrMask string, err error) {
+	var in *net.Interface
+	in, err = net.InterfaceByName(iface)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	inaddrs, err := in.Addrs()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	for _, addr := range inaddrs {
+		//fmt.Println(addr)
+		//fmt.Printf("network=%s, string=%s\n", addr.Network(),addr.String())
+		addrMask = addr.String()
+		if len(addrMask) < 20 {
+			return
+		}
+	}
+	return "", errors.New("no addrMask")
+}
+
+func getIpv4Addr(iface string) string {
+	ss, err := getIpv4AddrMask(iface)
+	if err != nil {
+		return ""
+	}
+	return strings.Split(ss, "/")[0]
+}
+
+func getInfaceMac(iface string) (net.HardwareAddr, error) {
+	in, err := net.InterfaceByName(iface)
+	if err != nil {
+		return nil, err
+	}
+	return in.HardwareAddr, nil
+}
+
+func genRoute() ([]byte, error) {
+	var payload []byte
+	net, err := getIpv4AddrMask("lan")
+	nexthop := getIpv4Addr(*TunName)
+	if net != "" && nexthop != "" {
+		return nil, err
+	}
+	smac, err := getInfaceMac(*TunName)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	content := net + "," + nexthop
+	if len(content) < 46 {
+		payload = make([]byte, 46)
+	} else {
+		payload = make([]byte, len(content))
+	}
+	return packet.CreateRoutePkt(nil, smac, payload[:]), nil
+}
