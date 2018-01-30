@@ -54,7 +54,7 @@ func init() {
 	FdbMap = FdbMaps{fdbs: make(map[int]*FDB, 16)}
 	//default create fdb0
 	//myfdb = NewFdb(0)
-	//go fdbtick()
+	go fdbtick()
 }
 
 func NewFdb(fdbId int) *FDB {
