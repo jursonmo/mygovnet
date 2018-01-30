@@ -8,6 +8,7 @@ import (
 
 func (f *FDB) flood(pio portIO, pkt *packet.PktBuf) (fwd bool) {
 	//log.Printf("-------------- flooding  ------------\n")
+	f.portMap.RLock()
 	for _, p := range f.portMap.ports {
 		if p != pio {
 			p.PutPktToChan(pkt)
@@ -16,6 +17,7 @@ func (f *FDB) flood(pio portIO, pkt *packet.PktBuf) (fwd bool) {
 			//log.Printf(" it is %s need to flood\n", p.String())
 		}
 	}
+	f.portMap.RUnlock()
 	//log.Printf("-------------- flood end  ------------\n")
 	return
 }

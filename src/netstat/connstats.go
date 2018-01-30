@@ -63,13 +63,17 @@ func ShowConntrack() map[uint16]map[uint32]string {
 		nctInfo := make(map[uint32]string)
 		ctIndex := uint32(0)
 		checkTuple := make(map[ctTuple]struct{})
+		nct.RLock()
 		for tuple, ct := range nct.conntracks {
+			nct.RUnlock()
 			if _, ok := checkTuple[tuple]; !ok {
 				checkTuple[invert(tuple)] = struct{}{}
 				nctInfo[ctIndex] = ct.String()
 				ctIndex++
 			}
+			nct.RLock()
 		}
+		nct.RUnlock()
 		conntrackInfo[zone] = nctInfo
 	}
 	return conntrackInfo
