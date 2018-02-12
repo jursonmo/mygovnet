@@ -105,3 +105,8 @@ func (b IPv4) SourceAddress() uint32 {
 func (b IPv4) DestinationAddress() uint32 {
 	return binary.BigEndian.Uint32(b[dstAddr : dstAddr+IPv4AddressSize])
 }
+
+// FragmentOffset returns the "fragment offset" field of the ipv4 header.
+func (b IPv4) FragmentOffset() uint16 {
+	return binary.BigEndian.Uint16(b[flagsFO:]) << 3
+}

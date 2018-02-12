@@ -2,10 +2,10 @@ package netstat
 
 import (
 	"log"
+	"mylog"
 	"packet"
 	"time"
 	"timer"
-	"mylog"
 )
 
 type networkProtoNum uint16
@@ -116,6 +116,10 @@ func ipHandler(pkb *packet.PktBuf) {
 	if !ipHeader.IsIPv4() {
 		return
 	}
+	if ipHeader.FragmentOffset() != 0 {
+		return
+	}
+
 	handler, ok := transportProtos[transportProtoNum(ipHeader.Protocol())]
 	if !ok {
 		return
