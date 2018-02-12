@@ -1,4 +1,5 @@
 #! /bin/sh
 export GOPATH=`pwd`
-export GOROOT="/usr/lib/go"
+#check which go
+#export GOROOT="/usr/lib/go"
 
